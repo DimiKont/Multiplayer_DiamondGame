@@ -17,7 +17,9 @@ import java.util.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-public class DiamondGameClient extends JPanel implements KeyListener {
+
+public class DiamondGameClient extends JPanel implements KeyListener
+{
     private static final long serialVersionUID = 1L;
 
     private static final int WIDTH = 800;

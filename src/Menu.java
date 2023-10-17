@@ -47,23 +47,23 @@ public class Menu extends JFrame implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        if(e.getSource() == exitButton)
-        {
-            System.exit(0);
-        }
-        else if(e.getSource() == singlePlayer)
+        if(e.getSource() == singlePlayer)
         {
             this.dispose(); // Close the GUI window
-            DiamondGame1.main(new String[0]); // Launch the Diamond Game
+            DiamondGame.main(new String[0]); // Launch the Diamond Game
         }
         else if (e.getSource() == multiPlayer)
         {
             this.dispose();
         }
+        else if (e.getSource() == exitButton)
+        {
+            System.exit(0);
+        }
     }
 
     public static void main(String[] args)
     {
-        new Menu();
+        SwingUtilities.invokeLater(Menu::new);
     }
 }
