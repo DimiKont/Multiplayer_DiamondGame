@@ -60,11 +60,11 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
         add(winMessage);
 
         restartGameButton.setBounds(550, 420, 150, 50);
-        restartGameButton.addActionListener(this);
+        restartGameButton.addActionListener(e -> restartGame());
         add(restartGameButton);
 
         exitGame.setBounds(550, 500, 150, 50);
-        exitGame.addActionListener(this);
+        exitGame.addActionListener(e -> System.exit(0));
         add(exitGame);
 
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -194,6 +194,7 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
             playerX = newX;
             playerY = newY;
         }
+
     }
 
     private void moveBot()
@@ -212,32 +213,47 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
 
     private boolean botWin() {return botX == diamondX && botY == diamondY;}
 
+    private void restartGame()
+    {
+        SwingUtilities.getWindowAncestor(this).dispose();
+
+        this.spawnObjects();
+        this.winMessage.setText("");
+        this.repaint();
+        this.drawGame();
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        if(e.getSource() == restartGameButton)
-        {
-            SwingUtilities.getWindowAncestor(this).dispose();
+        // if(e.getSource() == restartGameButton)
+        // {
+        //     SwingUtilities.getWindowAncestor(this).dispose();
 
-            this.spawnObjects();
-            this.winMessage.setText("");
-            this.repaint();
-            this.drawGame();
-        }
-        else if (e.getSource() == exitGame)
-        {
-            System.exit(0);
-        }
+        //     this.spawnObjects();
+        //     this.winMessage.setText("");
+        //     this.repaint();
+        //     this.drawGame();
+        // }
+        // else if (e.getSource() == exitGame)
+        // {
+        //     System.exit(0);
+        // }
     }
 
     private void displayMap(Graphics g)
     {
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 17; j++) {
-                if (MAP[i].charAt(j) == '*') {
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 17; j++)
+            {
+                if (MAP[i].charAt(j) == '*')
+                {
                     g.setColor(WALL_COLOR);
-                } else {
+                }
+                else
+                {
                     g.setColor(Color.WHITE);
                 }
 
@@ -255,7 +271,7 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
 
         if(playerX == botX && playerY == botY)
         {
-            g.setColor(Color.MAGENTA);
+            g.setColor(Color.PINK);
             g.fillOval(botY * CELL_SIZE, botX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         }
         
@@ -275,15 +291,14 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
 
     private boolean checkWinner()
     {
+        winMessage.setFont(new Font("Arial", Font.BOLD, 24));
         if (playerWin())
         {
-            winMessage.setFont(new Font("Arial", Font.BOLD, 24));
             winMessage.setText("You won!!");
             return true;
         }
         else if (botWin())
         {
-            winMessage.setFont(new Font("Arial", Font.BOLD, 24));
             winMessage.setText("Bot won!!");
             return true;
         }
@@ -342,7 +357,8 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
                 movePlayer(move);
                 isPlayerTurn = false;
             }
-            else if (!isPlayerTurn)
+
+            if (!isPlayerTurn)
             {
                 moveBot();
                 isPlayerTurn = true;
