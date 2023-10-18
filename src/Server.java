@@ -9,17 +9,19 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Random;
 
-public class Server {
-    private static final String[] MAP = {
-            "*****************",
-            "*...*.....*.*...*",
-            "*....*.......*..*",
-            "*...*...*..*....*",
-            "*.*....*....*...*",
-            "*...*....*.*....*",
-            "*...****.*...*..*",
-            "*...*.....*.....*",
-            "*****************"
+public class Server
+{
+    private static final String[] MAP = 
+    {
+        "*****************",
+        "*...*.....*.*...*",
+        "*....*.......*..*",
+        "*...*...*..*....*",
+        "*.*....*....*...*",
+        "*...*....*.*....*",
+        "*...****.*...*..*",
+        "*...*.....*.....*",
+        "*****************"
     };
 
     private int player1X;
@@ -30,7 +32,8 @@ public class Server {
     private int diamondY;
     private int currentPlayerTurn;
 
-    private void initGame() {
+    private void initGame()
+    {
         Random rand = new Random();
 
         do {
@@ -50,7 +53,8 @@ public class Server {
         currentPlayerTurn = 1;
     }
 
-    public Server() {
+    public Server()
+    {
         initGame();
     }
 
@@ -59,22 +63,31 @@ public class Server {
     private static ObjectInputStream player1In;
     private static ObjectInputStream player2In;
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         Server server = new Server();
 
-        try {
+        try
+        {
             ServerSocket serverSocket = new ServerSocket(30000);
 
             System.out.println("Waiting for Player 1...");
+
             Socket player1Socket = serverSocket.accept();
+
             player1Out = new ObjectOutputStream(player1Socket.getOutputStream());
             player1Out.writeObject(new GameData(server.player1X, server.player1Y, server.player2X ,server.player2Y, server.diamondX, server.diamondY, MAP));
+
             System.out.println("Player 1 connected.");
 
+            
             System.out.println("Waiting for Player 2...");
+            
             Socket player2Socket = serverSocket.accept();
+            
             player2Out = new ObjectOutputStream(player2Socket.getOutputStream());
             player2Out.writeObject(new GameData(server.player2X, server.player2Y, server.player1X, server.player1Y,server.diamondX, server.diamondY, MAP));
+            
             System.out.println("Player 2 connected.");
 
             player1In = new ObjectInputStream(player1Socket.getInputStream());
@@ -84,9 +97,11 @@ public class Server {
             {
                 server.run(player1Socket, player2Socket);
             }
+
             /*player1Socket.close();
             player2Socket.close();
             serverSocket.close();*/
+
         } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
         }
@@ -104,19 +119,19 @@ public class Server {
         DataInputStream in2 = new DataInputStream(client2.getInputStream());
         DataOutputStream out2 = new DataOutputStream(client2.getOutputStream());
 
-        // Receive integers from clients
-        int num1 = in1.readInt();
-        int num3 = in1.readInt();
+        // Receive integers (position) from clients
+        int Player1X = in1.readInt();
+        int Player1Y = in1.readInt();
 
-        int num2 = in2.readInt();
-        int num4 = in2.readInt();
+        int Player2X = in2.readInt();
+        int Player2Y = in2.readInt();
 
-        // Send integers to the opposite clients
-        out2.writeInt(num1);
-        out2.writeInt(num3);
+        // Send integers (position) to the opposite clients
+        out2.writeInt(Player1X);
+        out2.writeInt(Player1Y);
 
-        out1.writeInt(num2);
-        out1.writeInt(num4);
+        out1.writeInt(Player2X);
+        out1.writeInt(Player2Y);
 
         if(checkWin())
         {
@@ -126,8 +141,6 @@ public class Server {
         {
             System.exit(0);
         }
-
-
     }
 
     private boolean checkWin() {

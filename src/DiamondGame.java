@@ -269,18 +269,20 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
 
         displayMap(g);
 
-        if(playerX == botX && playerY == botY)
+        if (playerX == botX && playerY == botY)
         {
-            g.setColor(Color.PINK);
+            g.setColor(Color.MAGENTA);
+            g.fillOval(botY * CELL_SIZE, botX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        }
+        else
+        {
+            g.setColor(PLAYER_COLOR);
+            g.fillOval(playerY * CELL_SIZE, playerX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+
+            g.setColor(BOT_COLOR);
             g.fillOval(botY * CELL_SIZE, botX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         }
         
-        g.setColor(PLAYER_COLOR);
-        g.fillOval(playerY * CELL_SIZE, playerX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-
-        g.setColor(BOT_COLOR);
-        g.fillOval(botY * CELL_SIZE, botX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-    
         g.setColor(DIAMOND_COLOR);
         g.fillOval(diamondY * CELL_SIZE, diamondX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 
@@ -289,9 +291,11 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
         g.drawString("Use WASD to move, Q to quit", 10, HEIGHT - 10);
     }
 
+
     private boolean checkWinner()
     {
         winMessage.setFont(new Font("Arial", Font.BOLD, 24));
+
         if (playerWin())
         {
             winMessage.setText("You won!!");
@@ -364,10 +368,12 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
                 isPlayerTurn = true;
             }
 
-            if(checkWinner())
-                break;
+            checkWinner();
+            // if(checkWinner())
+            //     break;
 
-            SwingUtilities.invokeLater(this::repaint);
+            repaint();
+            // SwingUtilities.invokeLater(this::repaint);
 
             try {
                 Thread.sleep(100);

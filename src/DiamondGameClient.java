@@ -17,10 +17,11 @@ import java.util.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 public class DiamondGameClient extends JPanel implements KeyListener
 {
-    private static final long serialVersionUID = 1L;
+    // private static final long serialVersionUID = 1L;
 
     private static final int WIDTH = 800;
     private static final int HEIGHT = 600;
@@ -42,19 +43,23 @@ public class DiamondGameClient extends JPanel implements KeyListener
     private String[] map;
     private static Socket socket;
 
-    private ObjectOutputStream out;
+    // private ObjectOutputStream out;
     private ObjectInputStream in;
 
     private Queue<Character> keyQueue;
 
-    public DiamondGameClient(Socket socket) {
+    public DiamondGameClient(Socket socket)
+    {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
         setBackground(Color.WHITE);
         setFocusable(true);
         addKeyListener(this);
+    
         keyQueue = new LinkedList<Character>();
-        try {
-            out = new ObjectOutputStream(socket.getOutputStream());
+    
+        try 
+        {
+            // out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());
 
             GameData gameData = (GameData) in.readObject();
@@ -71,35 +76,45 @@ public class DiamondGameClient extends JPanel implements KeyListener
 
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 17; j++) {
-                if (map[i].charAt(j) == '*') {
+    private void displayMap(Graphics g)
+    {
+        for (int i = 0; i < 9; i++)
+        {
+            for (int j = 0; j < 17; j++)
+            {
+                if (map[i].charAt(j) == '*')
+                {
                     g.setColor(WALL_COLOR);
-                } else {
+                } 
+                else
+                {
                     g.setColor(Color.WHITE);
                 }
 
                 g.fillRect(j * CELL_SIZE, i * CELL_SIZE, CELL_SIZE, CELL_SIZE);
             }
         }
-        if (player1X == player2X && player1Y == player2Y) {
+    }
+
+    @Override
+    public void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        displayMap(g);
+
+        if (player1X == player2X && player1Y == player2Y)
+        {
             g.setColor(Color.MAGENTA);
             g.fillOval(player1Y * CELL_SIZE, player1X * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         }
-        else
-        {
 
-            g.setColor(PLAYER_COLOR);
-            g.fillOval(player1Y * CELL_SIZE, player1X * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        g.setColor(PLAYER_COLOR);
+        g.fillOval(player1Y * CELL_SIZE, player1X * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 
-            g.setColor(BOT_COLOR);
-            g.fillOval(player2Y * CELL_SIZE, player2X * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-        }
-
+        g.setColor(BOT_COLOR);
+        g.fillOval(player2Y * CELL_SIZE, player2X * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+    
         g.setColor(DIAMOND_COLOR);
         g.fillOval(diamondY * CELL_SIZE, diamondX * CELL_SIZE, CELL_SIZE, CELL_SIZE);
 
@@ -108,7 +123,8 @@ public class DiamondGameClient extends JPanel implements KeyListener
         g.drawString("Use WASD to move, Q to quit", 10, HEIGHT - 10);
     }
 
-    private void movePlayer(char move) {
+    private void movePlayer(char move)
+    {
         int newX = player1X;
         int newY = player1Y;
 
@@ -135,72 +151,82 @@ public class DiamondGameClient extends JPanel implements KeyListener
         }
     }
 
-
-    public static void main(String[] args) {
-        try {
-            socket = new Socket("tanel.ddns.net", 30000);
+    private static void initGame()
+    {
+        try
+        {
             JFrame frame = new JFrame("Diamond Game Client");
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setResizable(false);
+
+            socket = new Socket("localhost", 30000);
             DiamondGameClient gameClient = new DiamondGameClient(socket);
+
             frame.add(gameClient);
             frame.pack();
             frame.setLocationRelativeTo(null);
+            frame.setResizable(false);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setVisible(true);
+
             while(true)
             {
                 gameClient.run(socket);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+
+    public static void main(String[] args)
+    {
+        SwingUtilities.invokeLater(() -> initGame());
+    }
+
     public void run(Socket socket) throws IOException 
     {    
-            if(!keyQueue.isEmpty())
-            {
-                char move = keyQueue.remove();
-                movePlayer(move);
-            }
-            DataInputStream in = new DataInputStream(socket.getInputStream());
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+        if(!keyQueue.isEmpty())
+        {
+            char move = keyQueue.remove();
+            movePlayer(move);
+        }
 
-            // Send the integers to the server
-            out.writeInt(player1X);
-            out.writeInt(player1Y);
+        DataInputStream in = new DataInputStream(socket.getInputStream());
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 
-            // Receive the exchanged integers from the server
-            player2X= in.readInt();
-            player2Y = in.readInt();
+        // Send the integers to the server
+        out.writeInt(player1X);
+        out.writeInt(player1Y);
 
-            if(checkWin())
-            {
-                System.out.println("You win!");
-                System.exit(0);
-            }
-            else if(checkLose())
-            {
-                System.out.println("You lose!");
-                System.exit(0);
-            }
+        // Receive the exchanged integers from the server
+        player2X = in.readInt();
+        player2Y = in.readInt();
 
-            repaint();
+        if(checkWin())
+        {
+            System.out.println("You win!");
+            System.exit(0);
+        }
+        else if(checkLose())
+        {
+            System.out.println("You lose!");
+            System.exit(0);
+        }
+
+        repaint();
     }
 
-    private boolean checkWin() {
-        return player1X == diamondX && player1Y == diamondY;
-    }
+    private boolean checkWin() {return player1X == diamondX && player1Y == diamondY;}
 
-    private boolean checkLose() {
-        return player2X == diamondX && player2Y == diamondY;
-    }
+    private boolean checkLose() {return player2X == diamondX && player2Y == diamondY;}
 
     // Define a data class to send move information
-    static class MoveData implements Serializable {
+    static class MoveData implements Serializable
+    {
         char move;
 
-        MoveData(char move) {
+        MoveData(char move)
+        {
             this.move = move;
         }
     }
@@ -210,14 +236,15 @@ public class DiamondGameClient extends JPanel implements KeyListener
     public void keyTyped(KeyEvent e) {}
 
     @Override
-    public void keyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e)
+    {
         char key = e.getKeyChar();
 
-        if (key == 'q') {
+        if (key == 'q')
             System.exit(0);
-        }
 
-        keyQueue.add(key);
+        if(key == 'w' || key == 'a' || key == 's' || key == 'd')
+            keyQueue.add(key);
     }
 
     @Override
