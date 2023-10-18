@@ -219,6 +219,7 @@ public class DiamondGame extends JPanel implements ActionListener, KeyListener
 
         this.spawnObjects();
         this.winMessage.setText("");
+        this.keyQueue.clear(); // Clear the keyQueue
         this.repaint();
         this.drawGame();
     }
